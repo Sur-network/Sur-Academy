@@ -46,7 +46,7 @@ Suren Tx Fee in Rial = Gas amount × Gas Price in SUREN × SUREN Price in Rial
 - ۱۰% از پاداش بلوک تولیدشده به حساب بنیاد واریز می‌شود تا برای هزینه‌های لازم بنیاد صرف شود.
 
 
-![Image](13-1.jpg)
+![Image](13-1.jpeg)
 
 ## محل مصرف درآمدهای بنیاد سور
 
