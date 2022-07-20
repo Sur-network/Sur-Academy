@@ -1,0 +1,49 @@
+version: '3.3'
+
+services:
+  surnet:
+    container_name: surnet
+    restart: always
+    image: surnet:1.0
+    environment:
+      - VIRTUAL_HOST=test.com
+      - VIRTUAL_PORT=8545
+      - LETSENCRYPT_HOST=test.com
+    command: --rpc-http-enabled --rpc-http-cors-origins="*" --rpc-http-host=0.0.0.0 --host-allowlist="*" --rpc-http-api=ETH,NET,WEB3,IBFT
+    volumes:
+      - /home/surne/surnet:/opt/sur-evmtool/bin
+
+  nginx-proxy:
+    container_name: nginx-proxy
+    restart: always
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./data/nginx-proxy/etc/nginx/certs:/etc/nginx/certs
+      - ./data/nginx-proxy/etc/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./data/nginx-proxy/usr/share/nginx/html:/usr/share/nginx/html
+      - ./config/nginx-proxy/proxy.conf:/etc/nginx/proxy.conf
+      - ./config/nginx-proxy/conf.d:/etc/nginx/conf.d
+      - ./config/nginx-proxy/htpasswd:/etc/nginx/htpasswd
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+
+
+  nginx-proxy-letsencrypt:
+    container_name: nginx-proxy-letsencrypt
+    depends_on:
+      - nginx-proxy
+    restart: always
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - ./data/nginx-proxy/etc/nginx/certs:/etc/nginx/certs
+      - ./data/nginx-proxy/etc/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./data/nginx-proxy/usr/share/nginx/html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/acme.sh
+    environment:
+      - DEFAULT_EMAIL=info@rashedi.com
+      - NGINX_PROXY_CONTAINER=nginx-proxy
